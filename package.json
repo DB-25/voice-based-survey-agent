@@ -1,8 +1,27 @@
 {
+  "name": "voice-based-survey-agent",
   "private": true,
   "scripts": {
-    "start:01": "npm run start --prefix 01-basic",
-    "start:02": "npm run dev --prefix 02-voice",
-    "install": "npm install --prefix 01-basic && npm install --prefix 02-voice"
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@openai/agents": "*",
+    "next": "15.3.3",
+    "openai": "^5.0.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "server-only": "^0.0.1",
+    "zod": "^3.25.49"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
