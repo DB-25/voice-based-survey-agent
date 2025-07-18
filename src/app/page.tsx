@@ -42,12 +42,7 @@ export default function Home() {
     setResponses(prev => ({ ...prev, [questionId]: answer }));
   }, []);
 
-  // Function to handle option selection for MCQ
-  const handleOptionSelect = (questionId: number, option: string) => {
-    console.log(`[MCQ] User selected option for question ${questionId}:`, option);
-    updateResponse(questionId, option);
-    console.log(`[MCQ] Responses after MCQ selection:`, responses);
-  };
+
 
   const isComplete = Object.keys(responses).length === SURVEY_QUESTIONS.length;
 
@@ -65,9 +60,9 @@ export default function Home() {
     parameters: z.object({
       questionId: z.number().describe("The ID of the question being answered (1, 2, or 3)"),
       answer: z.string().describe("The answer provided by the user"),
-      questionType: z.enum(["multiple-choice", "long-text"]).describe("The type of question being answered"),
+      questionType: z.enum(["long-text"]).describe("The type of question being answered"),
     }),
-    execute: async ({ questionId, answer, questionType }: { questionId: number; answer: string; questionType: "multiple-choice" | "long-text" }) => {
+    execute: async ({ questionId, answer, questionType }: { questionId: number; answer: string; questionType: "long-text" }) => {
       console.log(`[RECORD] Recording answer for question ${questionId}:`, answer);
       console.log(`[RECORD] Question type: ${questionType}`);
       
@@ -140,15 +135,13 @@ export default function Home() {
       ${SURVEY_QUESTIONS.map((q, i) => `
       Question ${i + 1} (ID: ${q.id}): "${q.question}"
       Type: ${q.type}
-      ${q.type === "multiple-choice" ? `Options: ${q.options?.map((opt, j) => `${j + 1}. ${opt}`).join("; ")}` : ""}
       Status: Use getSurveyStatus tool to check current answer
       `).join("\n")}
 
       IMPORTANT - FORM-BASED INTERACTION:
       - Users can interact with ANY question at ANY time - there's no "current question"
-      - Question 1 (Multiple Choice): Users click option buttons in the UI - DO NOT ask them for their answer instead prompt them to ans the question in the ui (its an MCQ)
-      - Questions 2 & 3 (Long Text): Users can BOTH type manually AND use voice interaction to ans this
-      - When users speak about long-text questions, save their responses using recordSurveyAnswer
+      - All Questions (Q1, Q2 & Q3): Users can BOTH type manually AND use voice interaction to answer
+      - When users speak about questions, save their responses using recordSurveyAnswer
       - Users can edit their typed responses at any time - the voice assistant can also modify existing text
       
       IMMEDIATE GREETING (SAY THIS AS SOON AS YOU CONNECT):
@@ -362,12 +355,8 @@ export default function Home() {
                         
                         {/* Question Type Indicator */}
                         <div className="mb-4">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                            question.type === "multiple-choice" 
-                              ? "bg-yellow-100 text-yellow-800" 
-                              : "bg-green-100 text-green-800"
-                          }`}>
-                            {question.type === "multiple-choice" ? "🔘 Multiple Choice" : "✍️ Detailed Response"}
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                            ✍️ Detailed Response
                           </span>
                         </div>
                       </div>
@@ -388,39 +377,9 @@ export default function Home() {
                       </div>
                     </div>
                     
-                    {/* MCQ Options */}
-                    {question.type === "multiple-choice" && (
-                      <div className="mb-6 space-y-3">
-                        <h4 className="font-medium text-gray-700 mb-3">Select your answer:</h4>
-                        {question.options?.map((option, optionIndex) => (
-                          <button
-                            key={optionIndex}
-                            onClick={() => handleOptionSelect(question.id, option)}
-                            className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 transform hover:scale-102 ${
-                              responses[question.id] === option
-                                ? "border-blue-500 bg-blue-50 text-blue-800 shadow-md"
-                                : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"
-                            }`}
-                          >
-                            <div className="flex items-center">
-                              <span className="font-medium text-gray-600 mr-3 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center text-sm">
-                                {optionIndex + 1}
-                              </span>
-                              <span className="flex-1">{option}</span>
-                              {responses[question.id] === option && (
-                                <svg className="w-5 h-5 text-blue-500 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
-                              )}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    
+
                     {/* Long-text Input Field */}
-                    {question.type === "long-text" && (
-                      <div className="mb-6 space-y-4">
+                    <div className="mb-6 space-y-4">
                         <h4 className="font-medium text-gray-700">Your response:</h4>
                         <textarea
                           value={responses[question.id] || ""}
@@ -434,7 +393,6 @@ export default function Home() {
                           <span>{responses[question.id]?.length || 0} characters</span>
                         </div>
                       </div>
-                    )}
                     
                     {/* Answer Status */}
                     <div className="mb-4">
@@ -447,10 +405,7 @@ export default function Home() {
                             Answer Status: Complete
                           </h4>
                           <p className="text-green-700 text-sm">
-                            {question.type === "multiple-choice" 
-                              ? `Selected: "${responses[question.id]}"` 
-                              : `${responses[question.id].length} characters entered`
-                            }
+                            {`${responses[question.id].length} characters entered`}
                           </p>
                           <button
                             onClick={() => updateResponse(question.id, "")}
@@ -464,10 +419,7 @@ export default function Home() {
                           <p className="text-gray-500 italic">Not answered yet</p>
                           <p className="text-blue-600 text-sm mt-2 flex items-center">
                             <span className="mr-2">💡</span>
-                            {question.type === "multiple-choice" 
-                              ? "Click an option above"
-                              : "Ready when you are!"
-                            }
+                            Ready when you are!
                           </p>
                         </div>
                       )}
