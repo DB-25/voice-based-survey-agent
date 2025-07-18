@@ -1,6 +1,6 @@
-# Voice-Based Survey Agent
+# GenAI Workshop Follow-up Survey
 
-A Next.js application that conducts surveys about Generative AI impact in government work using OpenAI's Realtime Voice API.
+A Next.js application that conducts follow-up surveys about GenAI workshop skills and concepts using OpenAI's Realtime Voice API.
 
 ## 🚀 Features
 

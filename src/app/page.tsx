@@ -10,28 +10,21 @@ import {
 import { getSessionToken } from "./server/token";
 import z from "zod";
 
-// Survey questions - MCQ + Q2 and Q3 (long-text questions)
+// Survey questions - All long-text questions
 const SURVEY_QUESTIONS = [
   {
     id: 1,
-    type: "multiple-choice" as const,
-    question: "How would you describe the impact of being able to use GenAI in your work? Choose the best answer.",
-    options: [
-      "It has fundamentally changed the way I work",
-      "I have been able to achieve notable results and improvements", 
-      "It has enhanced my work in meaningful ways",
-      "I have applied some concepts but haven't seen major benefits yet",
-      "I have not been able to apply it in my work"
-    ]
+    type: "long-text" as const,
+    question: "Have you used any of the skills or concepts you learned in Workshop on GenAI?",
   },
   {
     id: 2,
-    question: "Briefly describe how you use GenAI now. Give an example of a problem that you have solved using GenAI that impacted the citizens you serve. Describe the steps you took to solve that problem. If you aren't using GenAI, please help us understand why not.",
+    question: "Tell us more about those skills and how you used them",
     type: "long-text" as const,
   },
   {
     id: 3,
-    question: "Do you have any additional feedback or insights to share about your experience applying GenAI?",
+    question: "Would you like to learn more about the skills and concepts taught?",
     type: "long-text" as const,
   },
 ];
@@ -130,13 +123,13 @@ export default function Home() {
     
     return new RealtimeAgent({
       name: "Survey Assistant",
-      instructions: `You are a voice based professional GenAI Impact Survey Assistant that drives the conversation forward and STAYS STRICTLY ON TOPIC. Your role is to help users complete this survey about Generative AI impact in government work by having a conversation with them and recording their answers.
+      instructions: `You are a voice based professional GenAI Workshop Follow-up Survey Assistant that drives the conversation forward and STAYS STRICTLY ON TOPIC. Your role is to help users complete this survey about their experience with skills and concepts learned in the Workshop on GenAI by having a conversation with them and recording their answers.
 
       IMPORTANT - STAY ON TOPIC:
-      - You ONLY discuss the GenAI Impact Survey questions and responses
+      - You ONLY discuss the GenAI Workshop Follow-up Survey questions and responses
       - Do NOT engage in any off-topic conversations
       - If users try to discuss other topics, politely redirect them back to the survey
-      - Say something like: "I'm here specifically to help with the GenAI Impact Survey. Let's focus on completing your responses to the survey questions."
+      - Say something like: "I'm here specifically to help with the GenAI Workshop Follow-up Survey. Let's focus on completing your responses to the survey questions."
       - Do NOT provide general AI assistance, jokes, or discussion unrelated to the survey
 
       DYNAMIC SURVEY STATUS:
@@ -159,16 +152,12 @@ export default function Home() {
       - Users can edit their typed responses at any time - the voice assistant can also modify existing text
       
       IMMEDIATE GREETING (SAY THIS AS SOON AS YOU CONNECT):
-      "Hello! I'm here to help you complete the GenAI Impact Survey. You have 3 questions to work with, and you can answer them in any order. For the multiple choice question (Q1), use the buttons. For the detailed questions (Q2 & Q3), you can either type directly in the text areas or speak to me - I'll fill them out for you! Let me check your current progress..."
+      "Hello! I'm here to help you complete the GenAI Workshop Follow-up Survey. You have 3 questions to work with, and you can answer them in any order. For all questions, you can either type directly in the text areas or speak to me - I'll fill them out for you! Let me check your current progress..."
       
       THEN IMMEDIATELY: Use getSurveyStatus tool to check current progress and provide specific guidance based on what's completed. start with the next question that is not answered.
 
       FOLLOW-UP QUESTION STRATEGY:
-      For Multiple Choice Questions (Q1):
-      - Redirect users to use the UI buttons: "Please use the buttons in the interface to select your answer for the multiple choice question."
-      - Do NOT use recordSurveyAnswer for multiple choice questions
-      
-      For Long-Text Questions (Q2 & Q3):
+      For All Long-Text Questions (Q1, Q2 & Q3):
       - Users can both type and speak their answers
       - If they give very brief answers, probe for more details
       - If users have already typed something, acknowledge it: "I see you've started typing for Question X. Would you like me to add to what you've written or replace it entirely?"
@@ -178,11 +167,11 @@ export default function Home() {
       SURVEY WORKFLOW:
       - Users can work with any question at any time through typing or voice
       - Use getSurveyStatus to check current status if needed
-      - For Question 1 (multiple choice): Redirect to UI buttons, do NOT use tools to save answers
-      - For Questions 2 & 3 (long-text): Record detailed responses using recordSurveyAnswer (this will update both the stored response and the text field in the ui)
+      - For All Questions (Q1, Q2 & Q3): Record detailed responses using recordSurveyAnswer (this will update both the stored response and the text field in the ui)
       - IMPORTANT: When recording answers, use the correct parameters:
-        * Question 2 (about how you use GenAI) = questionId: 2, questionType: "long-text"  
-        * Question 3 (about additional feedback) = questionId: 3, questionType: "long-text"
+        * Question 1 (about using skills/concepts) = questionId: 1, questionType: "long-text"
+        * Question 2 (about skills and how they used them) = questionId: 2, questionType: "long-text"  
+        * Question 3 (about wanting to learn more) = questionId: 3, questionType: "long-text"
       - If users want to change answers, use recordSurveyAnswer to update (works for both voice and manual edits)
       - Once the conversation is complete, use recordSurveyAnswer to save the answers and then say "Thank you for your responses! You can review or modify any of your responses at any time using either the text fields or by speaking to me. And to end the conversation ask the user to click the Stop Voice Assistant button"
       
@@ -268,10 +257,10 @@ export default function Home() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-              GenAI Impact Survey
+              GenAI Workshop Follow-up Survey
             </h1>
             <p className="text-xl text-gray-600 mb-6">
-              Voice-powered survey about Generative AI impact in government work
+              Voice-powered survey about your experience with GenAI workshop skills and concepts
             </p>
             {/* Progress Bar */}
             <div className="max-w-md mx-auto">
@@ -325,7 +314,7 @@ export default function Home() {
             
             <div className="mt-4 p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
               <p className="text-sm text-blue-700">
-                <strong>How to use:</strong> Click "Start Voice Assistant" then say "Hello" to begin. For multiple choice (Q1), use buttons. For detailed questions (Q2 & Q3), type or speak your answers.
+                <strong>How to use:</strong> Click "Start Voice Assistant" then say "Hello" to begin. For all questions, you can either type directly in the text areas or speak your answers to the voice assistant.
               </p>
             </div>
           </div>
